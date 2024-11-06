@@ -31,22 +31,19 @@ while True:
             if cv2.contourArea(contour) < 500:
                 continue
 
-            # Calculate moments to find the centroid
             M = cv2.moments(contour)
             if M["m00"] == 0:
-                continue  # Prevent division by zero
-
-            # Calculate centroid coordinates
+                continue
+                
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
 
-            # Overlay text at the centroid
-            text_position = (cX - 50, cY + 10)  # Adjust to center text
+            text_position = (cX - 50, cY + 10)
             cv2.putText(frame, "BLUE", text_position, font, font_scale, color_text, thickness, cv2.LINE_AA)
 
-    cv2.imshow('Detected Colors', frame)  # Display the frame with overlays
+    cv2.imshow('Detected Colors', frame)
 
-    if cv2.waitKey(1) == 27:  # Exit loop on ESC key press
+    if cv2.waitKey(1) == 27:
         break
 
 cap.release() 
