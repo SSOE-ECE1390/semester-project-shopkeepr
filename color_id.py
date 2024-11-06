@@ -6,15 +6,15 @@ color_ranges = {
     "Blue": ([98, 50, 50], [139, 255, 255]),
     "Green": ([40, 50, 50], [80, 255, 255]),
     "Red": ([0, 100, 100], [10, 255, 255]),
-    "Red2": ([170, 100, 100], [180, 255, 255]),  # Red can wrap around
+    "Red2": ([170, 100, 100], [180, 255, 255]),
 }
 
-cap = cv2.VideoCapture(0)  # Use 0 for webcam or replace with video file path
+cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
     if not ret:
-        break  # Break the loop if there is no frame captured
+        break
 
     into_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -22,14 +22,13 @@ while True:
         b_mask = cv2.inRange(into_hsv, np.array(L_limit), np.array(U_limit))
         contours, _ = cv2.findContours(b_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Add "HELLO" text on the original frame where the color is detected
         font = cv2.FONT_HERSHEY_SIMPLEX
-        color_text = (255, 255, 255)  # White color for text
+        color_text = (255, 255, 255)
         thickness = 2
         font_scale = 1
 
         for contour in contours:
-            if cv2.contourArea(contour) < 500:  # Filter out small contours
+            if cv2.contourArea(contour) < 500:
                 continue
 
             # Calculate moments to find the centroid
