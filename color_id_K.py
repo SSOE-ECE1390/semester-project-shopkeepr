@@ -20,7 +20,7 @@ img = img.reshape((img.shape[0] * img.shape[1], 3))
 img_float = np.float32(img)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-_, labels, centers = cv2.kmeans(img_float, clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+_, _, centers = cv2.kmeans(img_float, clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
 
 color = np.uint8(centers)
 
