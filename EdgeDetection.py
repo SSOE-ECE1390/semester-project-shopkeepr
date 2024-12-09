@@ -31,6 +31,8 @@ def edgeDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     # image = cv.resize(image, (300,300))
 
     image = easyocrDetection(image)
+    # return watershedding(image)
+    # return HoughLinesCircles(image)
     masks = cannyContourRemoval(image)
 
     for mask in masks:
@@ -136,11 +138,13 @@ def cannyContourRemoval(image: cv.typing.MatLike) -> cv.typing.MatLike:
     for contour in outer_contours:
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
         cv.drawContours(mask, contour, -1, 255, -1)
+        cv.drawContours(image, contour, -1, (0, 0, 255), 10)
         item_masks.append(mask)
 
+    cv.imshow(winName, image)
+    key = cv.waitKey()
+
     return item_masks
-
-
 
 def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
     
@@ -216,7 +220,6 @@ def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     return image
 
-
 def kmeansDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
     pixel_vals = image.reshape((-1, 3))
@@ -233,11 +236,19 @@ def kmeansDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     return cv.cvtColor(seg_image, cv.COLOR_RGB2BGR)
 
-def HoughLinesCircles(imageGray: cv.typing.MatLike) -> cv.typing.MatLike:
-    lines = cv.HoughLinesP(imageGray, 1, np.pi / 180, 150, None, 50, 10)
-    circles = cv.HoughCircles(imageGray, cv.HOUGH_GRADIENT, 1, 35, None, 50, 100, 20, 250)
+def HoughLinesCircles(image: cv.typing.MatLike) -> cv.typing.MatLike:
+    
+    if isinstance(image[0][0], np.ndarray) :
+        gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    else:
+        gray, image = image, cv.cvtColor(image, cv.COLOR_GRAY2BGR)
 
-    newImgColor = cv.cvtColor(imageGray, cv.COLOR_GRAY2BGR)
+
+    newImg = cv.GaussianBlur(gray, (7,7), 50, None, 30)
+    imageGray = cv.Canny(newImg, 50, 90, 3)
+    lines = cv.HoughLinesP(imageGray, 1, np.pi / 180, 150, None, 50, 10)
+    circles = cv.HoughCircles(imageGray, cv.HOUGH_GRADIENT, 1, 500, None, 50, 30, 20, 200)
+
 
     if lines is not None:
         for points in lines:
@@ -245,7 +256,7 @@ def HoughLinesCircles(imageGray: cv.typing.MatLike) -> cv.typing.MatLike:
             x1,y1,x2,y2=points[0]
             # Draw the lines joing the points
             # On the original image
-            cv.line(newImgColor,(x1,y1),(x2,y2),(0,255,0),2)
+            cv.line(image,(x1,y1),(x2,y2),(255,255,0),2)
             # Maintain a simples lookup list for points
             # lines_list.append([(x1,y1),(x2,y2)])
 
@@ -253,14 +264,11 @@ def HoughLinesCircles(imageGray: cv.typing.MatLike) -> cv.typing.MatLike:
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
             # draw the outer circle
-            cv.circle(newImgColor,(i[0],i[1]),i[2],(0,255,0),2)
+            cv.circle(image,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
-            cv.circle(newImgColor,(i[0],i[1]),2,(0,0,255),3)
+            cv.circle(image,(i[0],i[1]),2,(0,0,255),3)
 
-    return newImgColor
-
-
-
+    return image
 
 def tesseractDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
