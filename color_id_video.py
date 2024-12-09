@@ -1,4 +1,4 @@
-import cv2
+_import cv2
 import numpy as np
 
 # Define color ranges in HSV
