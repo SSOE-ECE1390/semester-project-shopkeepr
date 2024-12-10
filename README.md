@@ -123,6 +123,9 @@ The final method was feature matching using ORB like we did in class as a majori
 
 # Team Contributions
 Nasser Abdulwahab:
+
 Oday Abushaban: Clustering & feature matching algorithm for object recgontion, image collection and assembly, ideation
+
 Kushal Parkeh:
+
 George Parsois:
