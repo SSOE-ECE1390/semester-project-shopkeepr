@@ -12,8 +12,11 @@ import easyocr
 # else: 
 #     cv.VideoCapture(0)
 
-winName = "Edge Detection"
+# Tesseract OCR Path
 ts.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+
+# Init CV Window
+winName = "Edge Detection"
 
 cv.namedWindow(winName)
 cv.resizeWindow(winName, 100, 100)
@@ -21,10 +24,10 @@ cv.resizeWindow(winName, 100, 100)
 imgsrc = "Pictures/IMG_9810.JPG"
 
 img = cv.imread(imgsrc)
+img = cv.resize(img, (0,0), fx=0.3, fy=0.3) # downsize image
 
-img = cv.resize(img, (0,0), fx=0.3, fy=0.3)
 
-
+# main edge detection function
 def edgeDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     # newImg = cv.Sobel(image, ddepth=cv.CV_32F, dx=1, dy=1, ksize=5)
 
@@ -99,8 +102,13 @@ def edgeDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     return newImgColor
     # return newImg
 
+# Uses Canny Edge Detection, Tries to get the biggest, most external
+# contours from the edge detection and outputs these filled contours as masks
 def cannyContourRemoval(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
+    # TODO: separate into its own functions
+
+    # ensure gray and regular image are used no matter the function input
     if isinstance(image[0][0], np.ndarray) :
         gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     else:
@@ -116,11 +124,11 @@ def cannyContourRemoval(image: cv.typing.MatLike) -> cv.typing.MatLike:
     # newImg = cv.GaussianBlur(newImg, (7,7), 50, None, 50)
 
 
-
+    # testing the output
     cv.imshow(winName, newImg)
     key = cv.waitKey()
     
-
+    # Contour filtering
     contours, hierarchy = cv.findContours(newImg, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     print(len(contours))
 
@@ -135,17 +143,21 @@ def cannyContourRemoval(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     item_masks = []
 
+    # outputting as a set of masks
     for contour in outer_contours:
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
         cv.drawContours(mask, contour, -1, 255, -1)
         cv.drawContours(image, contour, -1, (0, 0, 255), 10)
         item_masks.append(mask)
 
+    # output image with all masks on it
     cv.imshow(winName, image)
     key = cv.waitKey()
 
     return item_masks
 
+# Watershedding Tutorial from G4Gs tailored to the dataset (attempted)
+# Separate into BackGnd & ForeGnd and partition accordingly
 def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
     
     # print(type(image[0][0]))
@@ -155,6 +167,7 @@ def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
     else:
         gray, image = image, cv.cvtColor(image, cv.COLOR_GRAY2BGR)
 
+    # separate into main lines and thicken them
     cannyKernel = np.ones((3, 3), np.uint8)
     newImg = cv.GaussianBlur(gray, (7,7), 50, None, 30)
     newImg = cv.Canny(newImg, 50, 90, 3)
@@ -173,6 +186,7 @@ def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
     cv.imshow(winName, thresh_img)
     key = cv.waitKey()
 
+    # create bg & fg
     kernel = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
     thresh_img = cv.morphologyEx(thresh_img, cv.MORPH_OPEN, kernel, iterations=6)
 
@@ -209,6 +223,7 @@ def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
     objects = []
     labels = np.unique(markers)
 
+    # unique contours
     for label in labels[2:]:
         target = np.where(markers == label, 255, 0).astype(np.uint8)
 
@@ -220,7 +235,11 @@ def watershedding(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     return image
 
+# try to separate image into objects to be able to count them
+# (does not work correctly)
 def kmeansDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
+    
+    # preprocessing
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
     pixel_vals = image.reshape((-1, 3))
     pixel_vals = np.float32(pixel_vals)
@@ -228,14 +247,17 @@ def kmeansDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, .85)
     k = 21
 
+    # K Means w/ Random Center for Generalizability
     _, labels, centers = cv.kmeans(pixel_vals, k, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
 
+    # Segment image off centers
     centers = np.uint8(centers)
     segment_data = centers[labels.flatten()]
     seg_image = segment_data.reshape((image.shape))
 
     return cv.cvtColor(seg_image, cv.COLOR_RGB2BGR)
 
+# Find Hough Lines & Circles to try and identify boxes & cans
 def HoughLinesCircles(image: cv.typing.MatLike) -> cv.typing.MatLike:
     
     if isinstance(image[0][0], np.ndarray) :
@@ -243,7 +265,7 @@ def HoughLinesCircles(image: cv.typing.MatLike) -> cv.typing.MatLike:
     else:
         gray, image = image, cv.cvtColor(image, cv.COLOR_GRAY2BGR)
 
-
+    # Find Lines & Circles and Plot them on the image
     newImg = cv.GaussianBlur(gray, (7,7), 50, None, 30)
     imageGray = cv.Canny(newImg, 50, 90, 3)
     lines = cv.HoughLinesP(imageGray, 1, np.pi / 180, 150, None, 50, 10)
@@ -270,6 +292,8 @@ def HoughLinesCircles(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     return image
 
+# OCR to find text to be able to block it out
+# Tesseract does not work well anytime I use it which is frustrating
 def tesseractDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
@@ -282,6 +306,8 @@ def tesseractDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     
     return image
 
+# Find Closed Shapes and Count Them to get a face count
+# Due to Canny ED, most boxes are never closed which messes this method up
 def count_closed_shapes(image: cv.typing.MatLike) -> int:
 
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -296,21 +322,27 @@ def count_closed_shapes(image: cv.typing.MatLike) -> int:
 
     return count
 
+# OCR to find text
+# Dynamic Blocking Textbox - average color @ the pts 
 def easyocrDetection(image: cv.typing.MatLike) -> cv.typing.MatLike:
     reader = easyocr.Reader(['en'])
     result = reader.readtext(image)
 
     for box, _, _ in result:
         coord1 = tuple(map(int, box[0]))
-        coord2 = tuple(map(int, box[2]))
+        coord2 = tuple(map(int, box[2])) #I made these and did not use them
 
+        # This function finds the text to block the color
         color = tuple([np.average([image[int(box[0][1])][int(box[0][0])][i], image[int(box[2][1])][int(box[2][0])][i]])  for i in range(len(image[0][0]))])
 
         cv.rectangle(image, coord1, coord2, color, cv.FILLED)
     # print(result)
     return image
 
+# Trying to remove text in the Background
 def removeTextBG(image: cv.typing.MatLike) -> cv.typing.MatLike:
+    
+    # find the kernels to process the image
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)[1]
 
@@ -320,6 +352,7 @@ def removeTextBG(image: cv.typing.MatLike) -> cv.typing.MatLike:
     dilate_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5,3))
     dilate = cv.dilate(close, dilate_kernel, iterations=1)
 
+    # find contours & if they're within a certain size, then block them
     cnts = cv.findContours(dilate, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     for c in cnts:
@@ -330,6 +363,7 @@ def removeTextBG(image: cv.typing.MatLike) -> cv.typing.MatLike:
 
     return image
 
+# TODO: put in a if name is main line
 cv.imshow(winName, edgeDetection(img))
 # plt.figure()
 # plt.imshow(edgeDetection(img))
