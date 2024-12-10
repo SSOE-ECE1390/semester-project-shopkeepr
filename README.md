@@ -40,7 +40,7 @@ If things get difficult, we could always choose to avoid video use in the projec
 One place we may expect trouble is cascaded products that are placed in line with each other. Depending on where the camera is mounted this could make identifying all objects in frame very simple or challenging, so we plan on properly setting up such that we can view all objects to some extent. Essentially, so long as we can see part of the item, we can use edge detection and tracking to keep the count updated appropriately. 
 
  
-# Results & Final Implementations
+## Results & Final Implementations
 Algorithm was split across the four of us to be hand tracking for allowing the program to know when to recheck count as a shelf can be restocked or taken from, and various forms of object recognition/detection for identifying different products found on the shelf. Bwlow is a thorough explanation of the results of each section
 
 Hand Tracking: 
@@ -119,9 +119,9 @@ The final method was feature matching using ORB like we did in class as a majori
 <img width="665" alt="Screenshot 2024-12-09 at 9 21 16 PM" src="https://github.com/user-attachments/assets/0a905884-ca9d-442f-b87f-70d127a0767d">
 
 
-# Reflections & Conclusions
+## Reflections & Conclusions
 
-# Team Contributions
+## Team Contributions
 Nasser Abdulwahab:
 
 Oday Abushaban: Clustering & feature matching algorithm for object recgontion, image collection and assembly, ideation
