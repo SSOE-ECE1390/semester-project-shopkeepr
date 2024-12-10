@@ -45,51 +45,65 @@ Algorithm was split across the four of us to be hand tracking for allowing the p
 
 Hand Tracking: 
 Originally, this was attempted with a Neural Network to track the gesture of one hand, but it had a some of issues. It was not very accureate and it only ran off of single images without the addition of live video feed for constant monitoring.
+
 <img width="484" alt="Screenshot 2024-12-09 at 8 45 52 PM" src="https://github.com/user-attachments/assets/aa3ab3a3-006e-412e-84af-79d6dc2811ab">
 
 We quickly shifted to trying an LSTM, which is a model trained to detect and recognize the endtire body, both hands, and facial features. The benefit was the use of live video as a transition from single pictures.
+
 <img width="492" alt="Screenshot 2024-12-09 at 8 46 22 PM" src="https://github.com/user-attachments/assets/04effa03-0cc7-4203-98f4-cc5e5659b316">
 
 
 Edge Detection-Based Object Counting:
 Upon running several methods of edge detection in the early phases of this project, we found that the image density of our "Shelf" images were too high, so any form of edge detecion yielded results like this:
+
 <img width="843" alt="Screenshot 2024-12-09 at 8 49 30 PM" src="https://github.com/user-attachments/assets/6fb8a36b-fa2a-4063-9bac-d52a80333995">
 
 Afterwards, a series of other tests and algortihms were run each time short comings occured with prior ones. Below is a table documenting the majority of edge detection attempts and programming:
+
 <img width="701" alt="Screenshot 2024-12-09 at 8 52 33 PM" src="https://github.com/user-attachments/assets/a042d66e-c67a-4660-8574-991f96e5f5c8">
 
 Following this are the outputs of different steps taken to get close to the goal:
 Sample Input:
+
 <img width="683" alt="Screenshot 2024-12-09 at 8 56 28 PM" src="https://github.com/user-attachments/assets/d5041299-28be-4098-b942-2bd2011fa464">
 
 Dynamic Text Blocking:
+
 <img width="575" alt="Screenshot 2024-12-09 at 8 57 00 PM" src="https://github.com/user-attachments/assets/eeef571f-d2a5-4f89-bf11-c7683eeccb67">
 
 Watershed Segmentation & Counting:
+
 <img width="562" alt="Screenshot 2024-12-09 at 8 57 30 PM" src="https://github.com/user-attachments/assets/17276bdd-f755-45d7-a44a-f81774410e81">
 
 Hough Lines & Circles:
+
 <img width="593" alt="Screenshot 2024-12-09 at 8 57 58 PM" src="https://github.com/user-attachments/assets/8b4483a5-2514-42e6-95a8-b89b8cffe726">
 
 Contour Counting:
+
 <img width="561" alt="Screenshot 2024-12-09 at 8 58 34 PM" src="https://github.com/user-attachments/assets/966d6476-3bf6-4f1e-8fd0-5b05460084cd">
 
 
 Color Tracking:
 This was a method used primarily for object recognition via the different colors each object is, and at first, the algortihm could only detect one color at a time, between the three primary colors of the objects we chose (red for the ketchup bottle, blue for the pasta box, and brown for the onions)
+
 <img width="460" alt="Screenshot 2024-12-09 at 9 00 51 PM" src="https://github.com/user-attachments/assets/572be92f-452d-4632-b4de-5c16055c0236">
 
 Afterwards, this was updated to account for all colors, which was great but yielded some issues. The primary was an object being identified with multiple colors, and thus identified as multiple objects, and additionally the relative closeness that exists between the colors red and brown which is covered well below in the way the program assigned two labels to the rectangle on the right:
+
 <img width="436" alt="Screenshot 2024-12-09 at 9 06 51 PM" src="https://github.com/user-attachments/assets/58e1fd67-cc72-46b1-bda5-74ec37f71d99">
 
 Object Quantification & Classification:
 Initially, this method of object quantification was targetted using edge dtection, but after diving work further among the team, it quickly became moreso heavily involved with object classification as well. Initially, some edge detection was used for the purposes of object quantification, by using a Canny edge detection method alongside some basic dilution and erosion to help clearly outline shapes and contours of shapes. In the end, from the original sample image, 8 objects were detected, which was the number of objects in the image, but it wasn't accurate as the 8 contours were not clearly defined around the 8 products.
+
 <img width="625" alt="Screenshot 2024-12-09 at 9 14 33 PM" src="https://github.com/user-attachments/assets/0b77ad45-f639-42b3-aab4-2227221a38bd">
 
 For object classification, the primary methods were trmplate matching through DBSCANs and feature matching. The first method DBSCANs is a method that uses clustering to help identify images based on a template image, where a big image is compared to a smalled one, and a series of points are made in comparison to the larger one where larger clusters of points represent places in the larger image where that template image may have been found.
+
 <img width="583" alt="Screenshot 2024-12-09 at 9 19 24 PM" src="https://github.com/user-attachments/assets/271c8027-1c45-41f5-8618-3f889203b41c">
 
 The final method was feature matching using ORB like we did in class as a majority of the images were taken at an angle. The template image that was tested was a simple image of one ingredient by itself where it's features and contours were compared to find matches in the primary image.
+
 <img width="665" alt="Screenshot 2024-12-09 at 9 21 16 PM" src="https://github.com/user-attachments/assets/0a905884-ca9d-442f-b87f-70d127a0767d">
 
 # Reflections & Conclusions
