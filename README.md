@@ -44,8 +44,10 @@ One place we may expect trouble is cascaded products that are placed in line wit
 Algorithm was split across the four of us to be hand tracking for allowing the program to know when to recheck count as a shelf can be restocked or taken from, and various forms of object recognition/detection for identifying different products found on the shelf. Bwlow is a thorough explanation of the results of each section
 
 Hand Tracking: Originally, this was attempted with a Neural Network to track the gesture of one hand, but it had a some of issues. It was not very accureate and it only ran off of single images without the addition of live video feed for constant monitoring.
+
 <img width="484" alt="Screenshot 2024-12-09 at 8 45 52 PM" src="https://github.com/user-attachments/assets/aa3ab3a3-006e-412e-84af-79d6dc2811ab">
 
 We quickly shifted to trying an LSTM, which is a model trained to detect and recognize the endtire body, both hands, and facial features. The benefit was the use of live video as a transition from single pictures.
+
 <img width="492" alt="Screenshot 2024-12-09 at 8 46 22 PM" src="https://github.com/user-attachments/assets/04effa03-0cc7-4203-98f4-cc5e5659b316">
 
